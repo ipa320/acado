@@ -35,6 +35,7 @@
 #include <acado_toolkit.hpp>
 #include <include/acado_gnuplot/gnuplot_window.hpp>
 
+#include <iostream>
 
 int main( )
 {
@@ -134,6 +135,12 @@ int main( )
 		exit( 1 );
 	if (controller.step( 0.0,y ) != SUCCESSFUL_RETURN)
 		exit( 1 );
+
+        VariablesGrid states;
+        
+        alg.getDifferentialStates(states);
+        
+        std::cout << states(20,0) << std::endl;        
 
     return EXIT_SUCCESS;
 }
