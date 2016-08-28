@@ -157,8 +157,9 @@ class OptimizationAlgorithmBase
 		 *  \return Number of disturbances */
 		virtual uint getNW( ) const;
 
-
-		double getStartTime ( ) const;
+        returnValue clear( );
+		
+        double getStartTime ( ) const;
 
 		double getEndTime( ) const;
 
@@ -168,7 +169,7 @@ class OptimizationAlgorithmBase
     //
     protected:
 
-		returnValue clear( );
+		
 
 		/** Initializes everything. */
 		returnValue init(	UserInteraction* _userIteraction
