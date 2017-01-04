@@ -67,6 +67,12 @@ const int 		defaultUseReferencePrediction = BT_TRUE;							/**< Default value fo
 const int 		defaultPrintlevel = MEDIUM;											/**< Default value for the printlevel determining the quatity of output given by the optimization algorithm (possible values: HIGH, MEDIUM, LOW, NONE). */
 const int 		defaultPrintCopyright = BT_TRUE;									/**< Default value for specifying whether the ACADO copyright notice is printed or not (possible values: BT_TRUE, BT_FALSE). */
 const int 		defaultprintSCPmethodProfile = BT_FALSE;							/**< Default value for printing the profile of the SCP method (possible values: BT_FALSE, BT_TRUE). */
+const int 		defaultPDNumberOfIterations = 0;
+const int 		defaultPDLeastNumberOfIterations = 2.0;
+const int 		defaultPDMaxNumberOfIterations = 0; 
+const int 		defaultPDLeastKktTol = 10.0;
+const int 		defaultPDRelKktReduction = 0.2;
+
 
 // DynamicDiscretization
 const int 		defaultFreezeIntegrator = BT_TRUE;							/**< Default value for specifying whether integrator should freeze all intermediate results (possible values: BT_TRUE, BT_FALSE). */

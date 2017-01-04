@@ -89,11 +89,47 @@ returnValue OptimizationAlgorithm::init( )
 		return SUCCESSFUL_RETURN;
 
 	returnValue returnvalue = OptimizationAlgorithmBase::init( this );
-
 	setStatus( BS_READY );
 	declareOptionsUnchanged( );
 
 	return returnvalue;
+}
+
+returnValue OptimizationAlgorithm::solve(double &runtime)
+{
+	returnValue returnvalue = SUCCESSFUL_RETURN;
+
+	if ( ( getStatus( ) != BS_READY ) || ( haveOptionsChanged( ) == BT_TRUE ) )
+		returnvalue = init( );
+
+	if( returnvalue != SUCCESSFUL_RETURN ) return returnvalue;
+	
+	// get runtime
+	RealClock runtime_clock;
+	runtime_clock.start();
+	returnvalue = nlpSolver->solve( );
+	runtime_clock.stop();
+	runtime = runtime_clock.getTime();
+
+	if( returnvalue != SUCCESSFUL_RETURN &&
+	    returnvalue != CONVERGENCE_ACHIEVED )
+	{
+		if ( returnvalue == RET_MAX_NUMBER_OF_STEPS_EXCEEDED)
+	{
+	  int PrintLevel; 
+	  get( PRINTLEVEL, PrintLevel ); 
+	  if (PrintLevel != NONE)
+	  {
+				return ACADOERROR( RET_MAX_NUMBER_OF_STEPS_EXCEEDED );
+	  }
+	}
+	  else
+	  {
+	  	return ACADOERROR( RET_OPTALG_SOLVE_FAILED );
+	  }
+	}
+
+	return SUCCESSFUL_RETURN;
 }
 
 
@@ -162,7 +198,11 @@ returnValue OptimizationAlgorithm::setupOptions( )
 	addOption( SPARSE_QP_SOLUTION          , defaultSparseQPsolution        );
 	addOption( GLOBALIZATION_STRATEGY      , defaultGlobalizationStrategy   );
 	addOption( PRINT_SCP_METHOD_PROFILE    , defaultprintSCPmethodProfile   );
-
+	addOption( PD_LEAST_NUMBER_OF_ITERATIONS, 2.0);
+	addOption( PD_MAX_NUMBER_OF_ITERATIONS , 10.0);
+	addOption( PD_LEAST_KKT_TOL 		   , 10.0);
+	addOption( PD_REL_KKT_REDUCTION		   , 0.2);
+	
 	// add integration options
 	addOption( FREEZE_INTEGRATOR           , defaultFreezeIntegrator        );
 	addOption( INTEGRATOR_TYPE             , defaultIntegratorType          );

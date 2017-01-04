@@ -84,6 +84,7 @@ class OptimizationAlgorithm : public OptimizationAlgorithmBase, public UserInter
         /** Starts execution. */
         virtual returnValue solve( );
 
+        returnValue solve(double &runtime);
 
 
     //

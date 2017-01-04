@@ -35,7 +35,6 @@
 #include <iomanip>
 #include <iostream>
 
-
 // #define SIM_DEBUG
 
 using namespace std;
@@ -304,7 +303,7 @@ returnValue SCPmethod::step(	const DVector& x0_,
 
 	if ( performCurrentStep( ) == CONVERGENCE_ACHIEVED )
 		return CONVERGENCE_ACHIEVED;
-	
+
 	returnValue returnValue = prepareNextStep( );
 
 	if ( ( returnValue != CONVERGENCE_ACHIEVED ) && ( returnValue != CONVERGENCE_NOT_YET_ACHIEVED ) )
@@ -337,8 +336,9 @@ returnValue SCPmethod::feedbackStep(	const DVector& x0_,
 	status = BS_RUNNING;
 	hasPerformedStep = BT_FALSE;
 
-	if ( checkForRealTimeMode( x0_,p_ ) != SUCCESSFUL_RETURN )
-		return ACADOERROR( RET_NLP_STEP_FAILED );
+	//if ( checkForRealTimeMode( x0_,p_ ) != SUCCESSFUL_RETURN )
+	//	return ACADOERROR( RET_NLP_STEP_FAILED );
+	isInRealTimeMode = BT_FALSE;
 
     int hessianMode;
     get( HESSIAN_APPROXIMATION,hessianMode );
@@ -353,11 +353,11 @@ returnValue SCPmethod::feedbackStep(	const DVector& x0_,
 	//bandedCP.objectiveGradient.print();
 	//x0_.print("x0");
 	
-    if ( isInRealTimeMode == BT_TRUE )
-	{
-		if ( setupRealTimeParameters( x0_,p_ ) != SUCCESSFUL_RETURN )
-			return ACADOERROR( RET_NLP_STEP_FAILED );
-	}
+    //if ( isInRealTimeMode == BT_TRUE )
+	//{
+	//	if ( setupRealTimeParameters( x0_,p_ ) != SUCCESSFUL_RETURN )
+	//		return ACADOERROR( RET_NLP_STEP_FAILED );
+	//}
 
 	int printLevel;
 	get( PRINTLEVEL,printLevel );
@@ -431,7 +431,9 @@ returnValue SCPmethod::performCurrentStep( )
 	if ( (PrintLevel)printLevel >= HIGH ) 
 		cout << "<-- Perform globalized SQP step done.\n";
 
-	printIteration( );
+	// check printlevel
+	if((PrintLevel)printLevel >= MEDIUM ) 
+		printIteration( );
 
 	// Check convergence criterion if no real-time iterations are performed
 	int terminateAtConvergence = 0;
@@ -443,6 +445,58 @@ returnValue SCPmethod::performCurrentStep( )
 		{
 			stopClockAndPrintRuntimeProfile( );
 			return CONVERGENCE_ACHIEVED;
+		}
+	}
+
+	// check PD iterations
+	if(numberOfSteps == 1)
+	{
+		// get initial kkt
+		initial_kkt_tol = current_kkt_tol;
+	}
+	else
+	{
+		double pd_max_number_of_SQP_iter = 0.0;
+		get( PD_MAX_NUMBER_OF_ITERATIONS, pd_max_number_of_SQP_iter);
+		
+		if(pd_max_number_of_SQP_iter > 0)
+		{
+			// aux vars
+			double pd_least_number_of_SQP_iter;
+			double pd_least_kkt_tol;
+			double pd_rel_kkt_reduction;
+			bool pd_ready = false;
+
+			// get runtime params
+			get(PD_LEAST_NUMBER_OF_ITERATIONS, pd_least_number_of_SQP_iter);
+			get(PD_LEAST_KKT_TOL, pd_least_kkt_tol);
+			get(PD_REL_KKT_REDUCTION, pd_rel_kkt_reduction);
+			
+			// check number of sqp_iterations
+			if(numberOfSteps >= pd_least_number_of_SQP_iter)
+			{
+				// check current kkt tol
+				if(current_kkt_tol < pd_least_kkt_tol)
+				{
+					bool enough_reduction = ( current_kkt_tol <  pd_rel_kkt_reduction * initial_kkt_tol);
+
+					// check PD criterion
+					if(enough_reduction) 
+					{
+						std::cout << "Enough reduction!" << std::endl;
+						pd_ready = true;
+					}
+
+					if(numberOfSteps >= pd_max_number_of_SQP_iter)
+					{
+						std::cout << "Reached Max Number of PD Steps" << std::endl;
+						pd_ready = true;
+					}
+				}					
+			}
+			// in case pd's ready, return CONVERGENCE_ACHIEVED
+			if(pd_ready)
+				return CONVERGENCE_ACHIEVED;
 		}
 	}
 
@@ -891,7 +945,8 @@ returnValue SCPmethod::checkForConvergence( )
 	double KKTmultiplierRegularisation;
 	get(KKT_TOLERANCE_SAFEGUARD, KKTmultiplierRegularisation);
 
-	if( eval->getKKTtolerance( iter,bandedCP,KKTmultiplierRegularisation ) <= tol )
+	current_kkt_tol = eval->getKKTtolerance( iter,bandedCP,KKTmultiplierRegularisation );
+	if( current_kkt_tol <= tol )
 	{
 		int discretizationMode;
 		get( DISCRETIZATION_TYPE, discretizationMode );

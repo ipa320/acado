@@ -253,6 +253,10 @@ class SCPmethod : public NLPsolver
     //
     protected:
 
+    	// PD related
+    	double initial_kkt_tol;
+    	double current_kkt_tol;
+
 		int timeLoggingIdx;
 		RealClock clock;
 		RealClock clockTotalTime;

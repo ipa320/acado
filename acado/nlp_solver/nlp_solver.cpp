@@ -240,7 +240,11 @@ returnValue NLPsolver::setupOptions( )
 	addOption( SPARSE_QP_SOLUTION          , defaultSparseQPsolution        );
 	addOption( GLOBALIZATION_STRATEGY      , defaultGlobalizationStrategy   );
 	addOption( PRINT_SCP_METHOD_PROFILE    , defaultprintSCPmethodProfile   );
-
+	addOption( PD_LEAST_NUMBER_OF_ITERATIONS, 2.0);
+	addOption( PD_MAX_NUMBER_OF_ITERATIONS , 10.0);
+	addOption( PD_LEAST_KKT_TOL 		   , 10.0);
+	addOption( PD_REL_KKT_REDUCTION		   , 0.2);
+	
 	return SUCCESSFUL_RETURN;
 }
 
