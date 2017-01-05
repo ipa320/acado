@@ -483,13 +483,13 @@ returnValue SCPmethod::performCurrentStep( )
 					// check PD criterion
 					if(enough_reduction) 
 					{
-						std::cout << "Enough reduction!" << std::endl;
+						//std::cout << "Enough reduction!" << current_kkt_tol << std::endl;
 						pd_ready = true;
 					}
 
 					if(numberOfSteps >= pd_max_number_of_SQP_iter)
 					{
-						std::cout << "Reached Max Number of PD Steps" << std::endl;
+						//std::cout << "Reached Max Number of PD Steps" << current_kkt_tol << std::endl;
 						pd_ready = true;
 					}
 				}					
