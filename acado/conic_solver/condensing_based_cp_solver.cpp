@@ -1161,6 +1161,8 @@ returnValue CondensingBasedCPsolver::expand(	BandedCP& cp
 
         BlockMatrix aux;
 
+        // TODO: Hessian can be zero, then stuff breaks
+        // Objective gradient can be zero too, but it should be fine, as long as the others are non-zero
         aux = (cp.deltaX^cp.hessian) + cp.objectiveGradient;
 
         DVector aux2(N*getNX());
@@ -1202,8 +1204,19 @@ returnValue CondensingBasedCPsolver::expand(	BandedCP& cp
         for( run1 = 0; run1 < N-1; run1++ ){
             aux4[run1].init(getNX());
             aux.getSubBlock( 0, run1+1, tmp );
+            if (tmp.isEmpty()) {
+              std::cout << "Hessian contains zero at point " << (run1 + 1) << ", aborting!" << std::endl;
+              return RET_ASSERTION;
+            }
 
             for( run2 = 0; run2 < getNX(); run2++ ){
+              assert(aux4->rows() > 0 && aux4->cols() > 0);
+              // TODO: The tmp matrix was empty when aux has type SBMT_ZERO at this position, leading to segfault!
+              assert(tmp.rows() > 0 && tmp.cols() > 0);
+              assert(aux2.rows() > (run1+1)*getNX()+run2);
+              assert(aux3.rows() > (run1+1)*getNX()+run2);
+
+              // Segfault here
                 aux4[run1](run2) = tmp(0,run2) - aux2( (run1+1)*getNX()+run2 ) - aux3( (run1+1)*getNX()+run2 );
             }
         }

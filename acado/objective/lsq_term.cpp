@@ -238,8 +238,10 @@ returnValue LSQTerm::evaluate( const OCPiterate &x ){
         // EVALUATE THE OBJECTIVE:
         // -----------------------
 
-        if( r != NULL )
-            h_res -= r[run1];
+        if( r != NULL ){
+          assert(h_res.cols() == r[run1].cols() && h_res.rows() == r[run1].rows());
+          h_res -= r[run1];
+        }
 
         if( S != NULL ){
 
