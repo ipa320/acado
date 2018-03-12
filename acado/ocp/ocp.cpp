@@ -214,7 +214,6 @@ returnValue OCP::subjectTo( const DVector& _lb, const Expression& _expr, const D
 returnValue OCP::subjectTo( int _index, const DVector& _lb, const Expression& _expr, const DVector& _ub )
 {
 	ASSERT(_index >= AT_START);
-	cout << _lb.getDim() << " " << _expr.getDim() << endl;
 	ASSERT(_lb.getDim() == _expr.getDim());
 	ASSERT(_lb.getDim() == _ub.getDim());
 
